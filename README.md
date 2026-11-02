@@ -28,6 +28,12 @@ Run it with the rule in place and nothing goes wrong, because “b” never coun
 
 > **State Machine Safety.** Index 2 was committed as "b", but node 3 applied "c".
 
+## Random faults and seeds
+
+Switch on **Random faults and writes** to run the same faults the tests use, and watch the properties hold.
+Every run comes from a seed, so `?seed=7` in the URL gives you the same run again, as long as you step through
+it and click the same things.
+
 ## Run it locally
 
 ```bash

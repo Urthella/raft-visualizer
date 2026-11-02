@@ -1,3 +1,4 @@
+import { randomFault } from "./chaos.ts";
 import { FIGURE_8 } from "./figure8.ts";
 import { Checker, INVARIANTS, type InvariantName } from "./invariants.ts";
 import { type Bugs, type Message, NO_BUGS, type RaftNode, Simulation } from "./raft.ts";
@@ -25,13 +26,16 @@ let checker: Checker;
 let playing = !matchMedia("(prefers-reduced-motion: reduce)").matches;
 let written = 0;
 let figureStep = -1;
+let nextFault = 0;
+let seed = Math.max(1, Number(new URLSearchParams(location.search).get("seed")) || 1);
 let carry = 0;
 let lastFrame = 0;
 
 function restart(options: { autoElections: boolean }): void {
-  sim = new Simulation({ seed: 1, bugs, autoElections: options.autoElections });
+  sim = new Simulation({ seed, bugs, autoElections: options.autoElections });
   checker = new Checker();
   written = 0;
+  nextFault = 0;
   buildRing();
 }
 
@@ -45,6 +49,10 @@ function exitFigure8(): void {
 function tick(): void {
   sim.tick();
   checker.check(sim);
+  if (($("faults") as HTMLInputElement).checked && sim.time >= nextFault) {
+    randomFault(sim, `x${++written}`);
+    nextFault = sim.time + sim.randomInt(5, 60);
+  }
 }
 
 // The ring: links and nodes are built once per run and updated each frame.
@@ -269,8 +277,17 @@ for (const box of document.querySelectorAll<HTMLInputElement>("input[data-bug]")
   });
 }
 
+$("rerun").addEventListener("click", () => {
+  seed = Math.max(1, Number(($("seed") as HTMLInputElement).value) || 1);
+  history.replaceState(null, "", `?seed=${seed}`);
+  exitFigure8();
+  restart({ autoElections: true });
+  render();
+});
+
 $("figure8-start").addEventListener("click", () => {
   playing = false;
+  ($("faults") as HTMLInputElement).checked = false;
   restart({ autoElections: false });
   figureStep = 0;
   $("figure8-next").removeAttribute("disabled");
@@ -296,6 +313,7 @@ $("figure8-next").addEventListener("click", () => {
   render();
 });
 
+($("seed") as HTMLInputElement).value = String(seed);
 restart({ autoElections: true });
 render();
 requestAnimationFrame((now) => {

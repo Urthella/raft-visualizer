@@ -36,6 +36,11 @@
         <button id="isolate" type="button">Isolate the leader</button>
         <button id="heal" type="button">Heal the network</button>
       </div>
+      <div class="row">
+        <label class="check"><input id="faults" type="checkbox"> Random faults and writes</label>
+        <label class="seed">Seed <input id="seed" type="number" min="1" step="1" value="1"></label>
+        <button id="rerun" type="button">Restart</button>
+      </div>
       <div class="row status">
         <span>Tick <strong id="time">0</strong></span>
         <span>Leader <strong id="leader">none</strong></span>
