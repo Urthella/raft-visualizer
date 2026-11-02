@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Raft Visualizer</title>
+  <meta name="description" content="Interactive Raft in the browser. Crash nodes, split the network, and watch the paper's safety properties get checked live.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Raft Visualizer</h1>
+    <p>Crash nodes and split the network, while the five safety properties from the Raft paper are checked after every tick. Switch on a bug to see one break.</p>
+  </header>
+
+  <main>
+    <section class="cluster" aria-label="Cluster">
+      <svg id="ring" viewBox="0 0 400 400" role="group" aria-label="Five nodes. Select a node to crash or restart it."></svg>
+      <ul class="legend" aria-label="Legend">
+        <li><span class="swatch follower"></span>Follower</li>
+        <li><span class="swatch candidate"></span>Candidate</li>
+        <li><span class="swatch leader"></span>Leader</li>
+        <li><span class="swatch down"></span>Crashed</li>
+      </ul>
+      <p class="hint">Select a node to crash or restart it.</p>
+    </section>
+
+    <section class="panel" aria-label="Controls">
+      <div class="row">
+        <button id="play" type="button" class="primary">Pause</button>
+        <button id="step" type="button">Step</button>
+        <label class="speed">Speed <input id="speed" type="range" min="5" max="120" value="25"></label>
+      </div>
+      <div class="row">
+        <button id="write" type="button">Client write</button>
+        <button id="isolate" type="button">Isolate the leader</button>
+        <button id="heal" type="button">Heal the network</button>
+      </div>
+      <div class="row status">
+        <span>Tick <strong id="time">0</strong></span>
+        <span>Leader <strong id="leader">none</strong></span>
+        <span>Term <strong id="term">0</strong></span>
+      </div>
+
+      <h2>Safety properties</h2>
+      <ul id="invariants" class="invariants"></ul>
+
+      <h2>Plant a bug</h2>
+      <p class="note">Each one restarts the run.</p>
+      <label class="check"><input type="checkbox" data-bug="commitOldTerms"> Commit entries from old terms</label>
+      <label class="check"><input type="checkbox" data-bug="forgetVoteOnRestart"> Forget the vote on restart</label>
+      <label class="check"><input type="checkbox" data-bug="skipVoteLogCheck"> Vote without checking the log</label>
+    </section>
+
+    <section class="figure8" aria-label="Figure 8 scenario">
+      <h2>Why old entries can't be counted: Figure 8</h2>
+      <p class="note">An entry can sit on a majority and still get overwritten. Walk through it with the rule on, then again with “Commit entries from old terms” on.</p>
+      <div class="row">
+        <button id="figure8-start" type="button">Start</button>
+        <button id="figure8-next" type="button" class="primary" disabled>Next step</button>
+      </div>
+      <p id="figure8-title" class="step-title"></p>
+      <p id="figure8-explain"></p>
+    </section>
+
+    <section class="logs" aria-label="Logs">
+      <h2>Logs</h2>
+      <p class="note">Each cell is an entry: its value and the term it was created in. A solid outline means committed on that node.</p>
+      <div class="scroll"><table id="logs"></table></div>
+    </section>
+
+    <section class="events" aria-label="Events">
+      <h2>What just happened</h2>
+      <ol id="events"></ol>
+    </section>
+  </main>
+
+  <footer>
+    <a href="https://github.com/Urthella/raft-visualizer">Source on GitHub</a>
+    · Based on <a href="https://raft.github.io/raft.pdf">the Raft paper</a>
+  </footer>
+  <script type="module" src="dist/ui.js"></script>
+</body>
+</html>

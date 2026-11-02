@@ -1,0 +1,17 @@
+{
+  "name": "raft-visualizer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive Raft in the browser, with the paper's safety properties checked live",
+  "license": "MIT",
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}
