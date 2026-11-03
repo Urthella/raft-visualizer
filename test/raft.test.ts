@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { randomFault } from "../src/chaos.ts";
 import { FIGURE_8 } from "../src/figure8.ts";
 import { Checker, runChecked } from "../src/invariants.ts";
 import { type Bugs, NO_BUGS, Simulation } from "../src/raft.ts";
@@ -21,34 +22,7 @@ function chaos(seed: number, bugs: Partial<Bugs> = {}, ticks = 4000) {
   let written = 0;
   while (sim.time < ticks) {
     runChecked(sim, checker, sim.randomInt(5, 60));
-    const leader = sim.leader();
-    if (leader) sim.propose(leader.id, `v${++written}`);
-    switch (sim.randomInt(0, 9)) {
-      case 0: {
-        const down = sim.nodes.filter((n) => !n.up).length;
-        if (down < 2) sim.crash(sim.randomInt(1, 5));
-        break;
-      }
-      case 1:
-        if (leader) sim.crash(leader.id);
-        break;
-      case 2:
-        for (const n of sim.nodes) sim.restart(n.id);
-        break;
-      case 3:
-        if (leader) sim.isolate(leader.id);
-        break;
-      case 4: {
-        const a = sim.randomInt(1, 5);
-        sim.partition([a, (a % 5) + 1], [1, 2, 3, 4, 5].filter((i) => i !== a && i !== (a % 5) + 1));
-        break;
-      }
-      case 5:
-      case 6:
-        sim.heal();
-        break;
-      default:
-    }
+    randomFault(sim, `v${++written}`);
   }
   return { sim, checker };
 }
